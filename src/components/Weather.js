@@ -1,22 +1,14 @@
 import "./Weather.css";
+import WeatherIcon from "./WeatherIcon";
 import { useState, useEffect } from "react";
-
-import day_clear from "../images/day_clear.png";
-import cloudy from "../images/cloudy.png";
-import day_partial_cloud from "../images/day_partial_cloud.png";
-import fog from "../images/fog.png";
-import night_half_moon_clear from "../images/night_half_moon_clear.png";
-import night_half_moon_partial_cloud from "../images/night_half_moon_partial_cloud.png";
-import overcast from "../images/overcast.png";
-import rain_thunder from "../images/rain_thunder.png";
-import rain from "../images/rain.png";
-import sleet from "../images/sleet.png";
-import snow from "../images/snow.png";
+import country_codes from "../country_codes.json";
 
 import windarrow from "../images/windarrow.png";
+import close_black from "../images/close_black.png";
+import close_red from "../images/close_red.png";
+import refresh from "../images/refresh.png";
 
 const Weather = (props) => {
-  const unixTime = Date.now() / 1000;
   const API_KEY = "db665b34ad76791b17f190401a72755f";
   const url = `https://api.openweathermap.org/data/2.5/weather?lat=${props.lat}&lon=${props.lon}&appid=${API_KEY}&units=metric`;
 
@@ -31,41 +23,17 @@ const Weather = (props) => {
   const [windDirection, setWindDirection] = useState(0);
   const [weatherIconId, setWeatherIconId] = useState(802);
   const [description, setDescription] = useState("");
+  const [countryCode, setCountryCode] = useState("");
   const [sunIsSet, setSunIsSet] = useState(false);
   const [isLoading, setLoadingState] = useState(false);
   const [error, setError] = useState(null);
 
-  function selectWeatherIcon(weatherId, sunIsSet) {
-    if (weatherId < 300) {
-      return rain_thunder;
-    } else if (weatherId < 600) {
-      return rain;
-    } else if (weatherId > 610 && weatherId < 614) {
-      return sleet;
-    } else if (weatherId < 700) {
-      return snow;
-    } else if (weatherId < 800) {
-      return fog;
-    } else if (weatherId < 801) {
-      if (sunIsSet) {
-        return night_half_moon_clear;
-      } else {
-        return day_clear;
-      }
-    } else if (weatherId < 803) {
-      if (sunIsSet) {
-        return night_half_moon_partial_cloud;
-      } else {
-        return day_partial_cloud;
-      }
-    } else if (weatherId < 804) {
-      return cloudy;
-    } else if (weatherId < 805) {
-      return overcast;
-    }
-  }
+  const deleteHandler = () => {
+    props.onDeleteLocation(props.id);
+  };
 
   async function fetchWeatherData() {
+    const unixTime = Date.now() / 1000;
     setLoadingState(true);
     try {
       const response = await fetch(url);
@@ -78,6 +46,7 @@ const Weather = (props) => {
       setFeelsLike(data.main.feels_like);
       setWindSpeed(data.wind.speed);
       setWindDirection(data.wind.deg);
+      setCountryCode(data.sys.country);
       setSunIsSet(unixTime <= data.sys.sunrise || unixTime >= data.sys.sunset);
       setWeatherIconId(data.weather[0].id);
       setDescription(data.weather[0].description);
@@ -93,33 +62,56 @@ const Weather = (props) => {
   } else if (isLoading) {
     content = <p>Fetching weather data...</p>;
   } else {
+    let country = country_codes.find((element) => element.code === countryCode);
     const rotation = {
       transform: `rotate(${windDirection}deg)`,
     };
     content = (
       <section className="weather">
-        <h2>{name}</h2>
-        <div className="top">
+        <img
+          className="img-button"
+          src={refresh}
+          alt=""
+          onClick={fetchWeatherData}
+          width={10}
+          height={10}
+        />
+        <h2 title={country.name}>{name}</h2>
+        <div className="top" title="current temp">
           {`${Math.round(temp)} °C`}
-          <span className="bottom">{`${Math.round(feelsLike)} °C`}</span>
+          <span className="bottom" title="feels like">{`${Math.round(
+            feelsLike
+          )} °C`}</span>
         </div>
         <div className="top">
           <img
             src={windarrow}
-            alt={windDirection}
+            alt={`${windDirection}°`}
             title={`${windDirection}°`}
             style={rotation}
             width={50}
             height={50}
           />
-          <span className="bottom">{`${Math.round(windSpeed)} m/s`}</span>
+          <span className="bottom" title="wind speed">{`${Math.round(
+            windSpeed
+          )} m/s`}</span>
         </div>
-        <img
-          src={selectWeatherIcon(weatherIconId, sunIsSet)}
-          alt={description}
-          title={description}
+        <WeatherIcon
+          weatherId={weatherIconId}
+          sunIsSet={sunIsSet}
+          description={description}
           width={75}
           height={75}
+        />
+        <img
+          className="img-button"
+          onClick={deleteHandler}
+          onMouseOver={(event) => (event.currentTarget.src = close_red)}
+          onMouseOut={(event) => (event.currentTarget.src = close_black)}
+          src={close_black}
+          alt=""
+          width={10}
+          height={10}
         />
       </section>
     );

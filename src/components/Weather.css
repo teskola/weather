@@ -1,7 +1,7 @@
 .weather {
   width: 100%;
   display: flex;
-  gap: 30px;
+  gap: 15px;
   margin: 1rem;
   padding: 1rem;
   background-color: white;
@@ -42,4 +42,7 @@
 .bottom {
   display: block;
   font-size: 1rem;
+}
+.img-button {
+  cursor: pointer;
 }

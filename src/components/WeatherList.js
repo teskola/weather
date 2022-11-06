@@ -5,7 +5,13 @@ const WeatherList = (props) => {
   return (
     <ul className="weather-list">
       {props.locations.map((location) => (
-        <Weather key={location.id} lat={location.lat} lon={location.lon} />
+        <Weather
+          id={location.id}
+          key={location.id}
+          lat={location.lat}
+          lon={location.lon}
+          onDeleteLocation={props.onDeleteLocation}
+        />
       ))}
     </ul>
   );
