@@ -23,7 +23,7 @@ const Weather = (props) => {
   const [windDirection, setWindDirection] = useState(0);
   const [weatherIconId, setWeatherIconId] = useState(802);
   const [description, setDescription] = useState("");
-  const [countryCode, setCountryCode] = useState("");
+  const [country, setCountry] = useState(null);
   const [sunIsSet, setSunIsSet] = useState(false);
   const [isLoading, setLoadingState] = useState(false);
   const [error, setError] = useState(null);
@@ -46,7 +46,9 @@ const Weather = (props) => {
       setFeelsLike(data.main.feels_like);
       setWindSpeed(data.wind.speed);
       setWindDirection(data.wind.deg);
-      setCountryCode(data.sys.country);
+      setCountry(
+        country_codes.find((element) => element.code === data.sys.country)
+      );
       setSunIsSet(unixTime <= data.sys.sunrise || unixTime >= data.sys.sunset);
       setWeatherIconId(data.weather[0].id);
       setDescription(data.weather[0].description);
@@ -62,7 +64,6 @@ const Weather = (props) => {
   } else if (isLoading) {
     content = <p>Fetching weather data...</p>;
   } else {
-    let country = country_codes.find((element) => element.code === countryCode);
     const rotation = {
       transform: `rotate(${windDirection}deg)`,
     };
@@ -76,7 +77,7 @@ const Weather = (props) => {
           width={10}
           height={10}
         />
-        <h2 title={country.name}>{name}</h2>
+        <h2 title={country ? country.name : ""}>{name}</h2>
         <div className="top" title="current temp">
           {`${Math.round(temp)} °C`}
           <span className="bottom" title="feels like">{`${Math.round(

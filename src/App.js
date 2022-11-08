@@ -1,26 +1,37 @@
 import "./App.css";
-import AddLocation from "./components/AddLocation";
 import WeatherList from "./components/WeatherList";
 import { useState, useEffect } from "react";
-import { Link, Route, Switch, useHistory } from "react-router-dom";
+import { Route, Switch, useHistory } from "react-router-dom";
 import AddLocationPage from "./pages/AddLocationPage";
-import ErrorModal from "./components/ErrorModal";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Modal from "./components/Modal";
 import Backdrop from "./components/Backdrop";
+import NavigationBar from "./components/NavigationBar";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "./firebase";
+import { firebaseConfig } from "./firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 function App() {
-  /* const tampere = {
-    key: 0,
-    lat: 61.5,
-    lon: 23.79,
-  }; */
   const API_KEY = "db665b34ad76791b17f190401a72755f";
   const [error, setError] = useState(null);
   const [locations, setLocations] = useState([]);
+  const [user, loading] = useAuthState(auth);
   const history = useHistory();
+
+  useEffect(() => {
+    if (loading) return;
+    if (user) {
+      fetchLocations(user.uid);
+    } else {
+      history.push("/Login");
+    }
+  }, [user, loading, history]);
 
   async function deleteLocationHandler(id) {
     await fetch(
-      `https://weatherlocations-default-rtdb.europe-west1.firebasedatabase.app/locations/${id}.json`,
+      `${firebaseConfig.databaseURL}/${user.uid}/locations/${id}.json`,
       {
         method: "Delete",
         headers: {
@@ -28,12 +39,43 @@ function App() {
         },
       }
     );
-    fetchLocations();
+    fetchLocations(user.uid);
+  }
+
+  async function registrationHandler(auth, email, password) {
+    history.push("/");
+    try {
+      const response = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      // POST default location
+
+      const tampere = {
+        lat: 61.5,
+        lon: 23.79,
+      };
+
+      await fetch(
+        `${firebaseConfig.databaseURL}/${response.user.uid}/locations.json`,
+        {
+          method: "POST",
+          body: JSON.stringify(tampere),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      fetchLocations(response.user.uid);
+    } catch (error) {
+      setError(error.message);
+    }
   }
 
   async function addLocationHandler(location) {
     history.push("/");
-
     // test fetching weather data before adding to database
 
     try {
@@ -43,7 +85,7 @@ function App() {
         throw new Error("Adding location failed.");
       } else {
         await fetch(
-          "https://weatherlocations-default-rtdb.europe-west1.firebasedatabase.app/locations.json",
+          `${firebaseConfig.databaseURL}/${user.uid}/locations.json`,
           {
             method: "POST",
             body: JSON.stringify(location),
@@ -52,16 +94,17 @@ function App() {
             },
           }
         );
-        fetchLocations();
+        fetchLocations(user.uid);
       }
     } catch (error) {
       setError(error.message);
     }
   }
 
-  const fetchLocations = async () => {
+  const fetchLocations = async (id) => {
+    console.log(auth);
     const response = await fetch(
-      "https://weatherlocations-default-rtdb.europe-west1.firebasedatabase.app/locations.json"
+      `${firebaseConfig.databaseURL}/${id}/locations.json`
     );
     const data = await response.json();
 
@@ -77,42 +120,46 @@ function App() {
     setLocations(fetchedLocations);
   };
 
-  useEffect(() => {
-    fetchLocations();
-  }, []);
-
-  const resetErrorState = () => {
-    setError(null);
-  };
-
   let errorMessage;
-
   errorMessage = (
     <div>
-      <ErrorModal error={error} onConfirm={resetErrorState}></ErrorModal>
-      <Backdrop onClick={resetErrorState}></Backdrop>
+      <Modal message={error} onConfirm={() => setError(null)}></Modal>
+      <Backdrop onClick={() => setError(null)}></Backdrop>
     </div>
   );
 
   return (
-    <section>
-      {error && errorMessage}
-      <Switch>
-        <Route path="/" exact>
-          <WeatherList
-            locations={locations}
-            onDeleteLocation={deleteLocationHandler}
-          />
-          <Link to="/AddLocationPage">
-            <button>Add location</button>
-          </Link>
-        </Route>
-        <Route path="/AddLocationPage">
-          <AddLocationPage />
-          <AddLocation onAddLocation={addLocationHandler} />
-        </Route>
-      </Switch>
-    </section>
+    <>
+      <NavigationBar userLoggedIn={user ? true : false} />
+      <section>
+        {error && errorMessage}
+        <Switch>
+          <Route path="/" exact>
+            {user ? (
+              <WeatherList
+                locations={locations}
+                onDeleteLocation={deleteLocationHandler}
+              />
+            ) : (
+              <p>Login to see weather data.</p>
+            )}
+          </Route>
+          <Route path="/AddLocationPage">
+            <AddLocationPage
+              onAddLocation={addLocationHandler}
+              userLoggedIn={user ? true : false}
+            />
+          </Route>
+          <Route path="/Register">
+            <Register onRegister={registrationHandler} />
+          </Route>
+          <Route path="/Login">
+            <Login />
+          </Route>
+        </Switch>
+        {user && `Logged in as ${user.email}`}
+      </section>
+    </>
   );
 }
 

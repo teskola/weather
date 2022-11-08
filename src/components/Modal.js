@@ -1,7 +1,7 @@
-const ErrorModal = (props) => {
+const Modal = (props) => {
   return (
     <div className="modal">
-      <p>{props.error}</p>
+      <p>{props.message}</p>
       <button className="btn" onClick={props.onConfirm}>
         OK
       </button>
@@ -9,4 +9,4 @@ const ErrorModal = (props) => {
   );
 };
 
-export default ErrorModal;
+export default Modal;
