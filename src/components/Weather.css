@@ -18,7 +18,8 @@
 }
 
 .weather h3 {
-  color: #eccf77;
+  color: black;
+  flex-grow: 1;
   margin: 0;
   font-size: 1rem;
 }

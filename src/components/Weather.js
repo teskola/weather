@@ -90,8 +90,8 @@ const Weather = (props) => {
             alt={`${windDirection}°`}
             title={`${windDirection}°`}
             style={rotation}
-            width={50}
-            height={50}
+            width={33}
+            height={33}
           />
           <span className="bottom" title="wind speed">{`${Math.round(
             windSpeed
@@ -101,8 +101,8 @@ const Weather = (props) => {
           weatherId={weatherIconId}
           sunIsSet={sunIsSet}
           description={description}
-          width={75}
-          height={75}
+          width={50}
+          height={50}
         />
         <img
           className="img-button"

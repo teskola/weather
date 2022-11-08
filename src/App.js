@@ -102,7 +102,6 @@ function App() {
   }
 
   const fetchLocations = async (id) => {
-    console.log(auth);
     const response = await fetch(
       `${firebaseConfig.databaseURL}/${id}/locations.json`
     );
