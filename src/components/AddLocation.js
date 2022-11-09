@@ -1,40 +1,54 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { useHistory } from "react-router-dom";
 
 const AddLocation = (props) => {
+  const history = useHistory();
   const latRef = useRef("");
   const lonRef = useRef("");
+  const [isAdding, setIsAdding] = useState(false);
 
   const submitHandler = (event) => {
     event.preventDefault();
-
+    setIsAdding(true);
     const location = {
       lat: latRef.current.value,
       lon: lonRef.current.value,
     };
-
     props.onAddLocation(location);
+    history.push("/");
   };
 
   let content;
-  if (props.userLoggedIn) {
+  if (isAdding) {
+    content = <p>Please wait</p>;
+  } else if (props.userLoggedIn) {
     content = (
       <form onSubmit={submitHandler}>
-        <div>
-          <label htmlFor="text">lat</label>
-          <textarea rows="1" id="lat" ref={latRef} />
-        </div>
-        <div>
-          <label htmlFor="text">lon</label>
-          <textarea rows="1" id="lon" ref={lonRef} />
-        </div>
-        <button>Add Location</button>
+        <label className="monospace" htmlFor="lat">
+          lat{" "}
+        </label>
+        <input type="text" size={5} ref={latRef} />
+        <br></br>
+        <label className="monospace" htmlFor="lon">
+          lon{" "}
+        </label>
+        <input type="text" size={5} ref={lonRef} />
+
+        <p>
+          <button>Add Location</button>
+        </p>
       </form>
     );
   } else {
     content = <p>Login to add location.</p>;
   }
 
-  return <div>{content}</div>;
+  return (
+    <div>
+      {content}
+      <br></br>
+    </div>
+  );
 };
 
 export default AddLocation;

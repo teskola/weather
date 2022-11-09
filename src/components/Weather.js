@@ -26,9 +26,11 @@ const Weather = (props) => {
   const [country, setCountry] = useState(null);
   const [sunIsSet, setSunIsSet] = useState(false);
   const [isLoading, setLoadingState] = useState(false);
+  const [isDeleting, setDeletingState] = useState(false);
   const [error, setError] = useState(null);
 
   const deleteHandler = () => {
+    setDeletingState(true);
     props.onDeleteLocation(props.id);
   };
 
@@ -63,12 +65,14 @@ const Weather = (props) => {
     content = <p>{error}</p>;
   } else if (isLoading) {
     content = <p>Fetching weather data...</p>;
+  } else if (isDeleting) {
+    content = <p>Deleting...</p>;
   } else {
     const rotation = {
       transform: `rotate(${windDirection}deg)`,
     };
     content = (
-      <section className="weather">
+      <>
         <img
           className="img-button"
           src={refresh}
@@ -114,11 +118,11 @@ const Weather = (props) => {
           width={10}
           height={10}
         />
-      </section>
+      </>
     );
   }
 
-  return <div>{content}</div>;
+  return <section className="weather">{content}</section>;
 };
 
 export default Weather;

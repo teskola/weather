@@ -1,25 +1,28 @@
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link, useHistory } from "react-router-dom";
-import { auth, logInWithEmailAndPassword} from "../firebase";
+import { auth } from "../firebase";
 
-const Login = () => {
+const Login = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [user, loading] = useAuthState(auth);
+  const [user] = useAuthState(auth);
   const history = useHistory();
+
   useEffect(() => {
-    if (loading) {
-      // jotain
-      return;
-    }
     if (user) history.push("/");
-  }, [user, loading, history]);
+  }, [user, history]);
+
+  const handleKeyPress = (e) => {
+    if (e.keyCode === 13) {
+      props.onEmailLogin(email, password);
+    }
+  };
 
   return (
     <div>
       <h2>Login</h2>
-      <div>
+      <div onKeyDown={handleKeyPress}>
         <input
           type="text"
           value={email}
@@ -36,7 +39,8 @@ const Login = () => {
       <br></br>
       <button
         className="btn"
-        onClick={() => logInWithEmailAndPassword(email, password)}
+        onClick={() => props.onEmailLogin(email, password)}
+        onKeyDown={handleKeyPress}
       >
         OK
       </button>

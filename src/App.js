@@ -1,83 +1,42 @@
 import "./App.css";
+
 import WeatherList from "./components/WeatherList";
-import { useState, useEffect } from "react";
-import { Route, Switch, useHistory } from "react-router-dom";
 import AddLocationPage from "./pages/AddLocationPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Modal from "./components/Modal";
-import Backdrop from "./components/Backdrop";
 import NavigationBar from "./components/NavigationBar";
+import Message from "./components/Message";
+
+import { useState, useEffect } from "react";
+import { Route, Switch, useHistory } from "react-router-dom";
+
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "./firebase";
 import { firebaseConfig } from "./firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 
 function App() {
   const API_KEY = "db665b34ad76791b17f190401a72755f";
   const [error, setError] = useState(null);
   const [locations, setLocations] = useState([]);
-  const [user, loading] = useAuthState(auth);
+  const [user] = useAuthState(auth);
   const history = useHistory();
 
   useEffect(() => {
-    if (loading) return;
     if (user) {
       fetchLocations(user.uid);
     } else {
       history.push("/Login");
     }
-  }, [user, loading, history]);
+  }, [user, history]);
 
-  async function deleteLocationHandler(id) {
-    await fetch(
-      `${firebaseConfig.databaseURL}/${user.uid}/locations/${id}.json`,
-      {
-        method: "Delete",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    fetchLocations(user.uid);
-  }
-
-  async function registrationHandler(auth, email, password) {
-    history.push("/");
-    try {
-      const response = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
-      // POST default location
-
-      const tampere = {
-        lat: 61.5,
-        lon: 23.79,
-      };
-
-      await fetch(
-        `${firebaseConfig.databaseURL}/${response.user.uid}/locations.json`,
-        {
-          method: "POST",
-          body: JSON.stringify(tampere),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      fetchLocations(response.user.uid);
-    } catch (error) {
-      setError(error.message);
-    }
-  }
-
+  /*
+   *********Tests fetching weather data for location before adding the location to database
+   */
   async function addLocationHandler(location) {
-    history.push("/");
-    // test fetching weather data before adding to database
-
     try {
       const url = `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&appid=${API_KEY}`;
       const response = await fetch(url);
@@ -85,7 +44,7 @@ function App() {
         throw new Error("Adding location failed.");
       } else {
         await fetch(
-          `${firebaseConfig.databaseURL}/${user.uid}/locations.json`,
+          `${firebaseConfig.databaseURL}/${user.uid}/locations.json?auth=${auth.currentUser.accessToken}`,
           {
             method: "POST",
             body: JSON.stringify(location),
@@ -101,9 +60,30 @@ function App() {
     }
   }
 
+  /*
+   ***********Deletes location
+   */
+
+  async function deleteLocationHandler(id) {
+    await fetch(
+      `${firebaseConfig.databaseURL}/${user.uid}/locations/${id}.json?auth=${auth.currentUser.accessToken}`,
+      {
+        method: "Delete",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    fetchLocations(user.uid);
+  }
+  /* 
+
+***********Fetches locations from Firebase database.
+
+*/
   const fetchLocations = async (id) => {
     const response = await fetch(
-      `${firebaseConfig.databaseURL}/${id}/locations.json`
+      `${firebaseConfig.databaseURL}/${id}/locations.json?auth=${auth.currentUser.accessToken}`
     );
     const data = await response.json();
 
@@ -119,19 +99,49 @@ function App() {
     setLocations(fetchedLocations);
   };
 
-  let errorMessage;
-  errorMessage = (
-    <div>
-      <Modal message={error} onConfirm={() => setError(null)}></Modal>
-      <Backdrop onClick={() => setError(null)}></Backdrop>
-    </div>
-  );
+  /* 
+  
+  ************Registers new user and adds default location to database.
+  */
+
+  async function registrationHandler(auth, email, password) {
+    let newUser;
+    try {
+      newUser = await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      setError(error.message);
+    }
+
+    await fetch(
+      `${firebaseConfig.databaseURL}/${newUser.user.uid}/locations.json?auth=${newUser.user.accessToken}`,
+      {
+        method: "POST",
+        body: JSON.stringify({ lat: 61.5, lon: 23.79 }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    fetchLocations(newUser.user.uid);
+  }
+
+  /*
+   **************Login using email and password
+   */
+
+  async function emailLoginHandler(email, password) {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      setError(error.message);
+    }
+  }
 
   return (
     <>
       <NavigationBar userLoggedIn={user ? true : false} />
       <section>
-        {error && errorMessage}
+        {error && <Message message={error} onConfirm={() => setError(null)} />}
         <Switch>
           <Route path="/" exact>
             {user ? (
@@ -150,10 +160,13 @@ function App() {
             />
           </Route>
           <Route path="/Register">
-            <Register onRegister={registrationHandler} />
+            <Register
+              onRegister={registrationHandler}
+              addLocation={addLocationHandler}
+            />
           </Route>
           <Route path="/Login">
-            <Login />
+            <Login onEmailLogin={emailLoginHandler} />
           </Route>
         </Switch>
         {user && `Logged in as ${user.email}`}

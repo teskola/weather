@@ -6,17 +6,30 @@ import { auth } from "../firebase";
 const Register = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [user, loading] = useAuthState(auth);
+  const [user] = useAuthState(auth);
+  const [isRegistering, setIsRegistering] = useState(false);
   const history = useHistory();
 
+  const register = () => {
+    setIsRegistering(true);
+    props.onRegister(auth, email, password);
+    setIsRegistering(false);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.keyCode === 13) {
+      register();
+    }
+  };
+
   useEffect(() => {
-    if (user) history.push("/");
-  }, [user, loading, history]);
+    if (user && !isRegistering) history.push("/");
+  }, [user, history, isRegistering]);
 
   return (
     <div>
       <h2>Register</h2>
-      <div>
+      <div onKeyDown={handleKeyPress}>
         <input
           type="text"
           value={email}
@@ -31,10 +44,8 @@ const Register = (props) => {
         />
       </div>
       <br></br>
-      <button
-        className="btn"
-        onClick={() => props.onRegister(auth, email, password)}
-      >
+      {isRegistering && <p>Please wait</p>}
+      <button className="btn" onClick={register} onKeyDown={handleKeyPress}>
         OK
       </button>
       {/*  <button onClick={signInWithGoogle}>Register with Google</button> */}

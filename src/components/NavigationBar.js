@@ -1,15 +1,16 @@
+import { signOut } from "firebase/auth";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { logout } from "../firebase";
-import Backdrop from "./Backdrop";
-import Modal from "./Modal";
+import { auth } from "../firebase";
+import Message from "./Message";
+
 import "./NavigationBar.css";
 
 const NavigationBar = (props) => {
-  const [showModal, setShowModal] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
   const logOutHandler = () => {
-    logout();
-    setShowModal(true);
+    signOut(auth);
+    setShowMessage(true);
   };
   let content;
   if (props.userLoggedIn) {
@@ -24,14 +25,11 @@ const NavigationBar = (props) => {
 
   return (
     <div className="header">
-      {showModal && (
-        <div>
-          <Modal
-            message={"Logged out succesfully."}
-            onConfirm={() => setShowModal(false)}
-          />
-          <Backdrop onClick={() => setShowModal(false)}></Backdrop>
-        </div>
+      {showMessage && (
+        <Message
+          message={"Logged out succesfully."}
+          onConfirm={() => setShowMessage(false)}
+        />
       )}
 
       <nav>
@@ -40,7 +38,7 @@ const NavigationBar = (props) => {
             <Link to="/">Weather</Link>
           </li>
           <li>
-            <Link to="/AddLocationPage">Add location</Link>
+            <Link to="/AddLocationPage">Add Location</Link>
           </li>
           <li>{content}</li>
         </ul>
