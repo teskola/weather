@@ -19,7 +19,9 @@ import {
 } from "firebase/auth";
 
 function App() {
+  const API_KEY = "db665b34ad76791b17f190401a72755f";
   const [error, setError] = useState(null);
+
   const [locations, setLocations] = useState([]);
   const [user] = useAuthState(auth);
   const history = useHistory();
@@ -140,6 +142,7 @@ function App() {
     <>
       <NavigationBar userLoggedIn={user ? true : false} />
       <section>
+        <div className="logged">{user && `Logged in as ${user.email}`}</div>
         {error && <Message message={error} onConfirm={() => setError(null)} />}
         <Switch>
           <Route path="/" exact>
@@ -168,31 +171,32 @@ function App() {
             <Login onEmailLogin={emailLoginHandler} />
           </Route>
         </Switch>
-        {user && `Logged in as ${user.email}`}
       </section>
       <div className="attribution">
-        <span
-          href="http://purl.org/dc/dcmitype/StillImage"
-          property="dct:title"
-          rel="dct:type"
-        >
-          Weather Icons
-        </span>{" "}
-        by{" "}
+        Weather Icons by{" "}
         <a
+          target={"_blank"}
           href="https://dovora.com"
           property="cc:attributionName"
-          rel="cc:attributionURL"
+          rel="noreferrer"
         >
           Dovora Interactive
         </a>{" "}
         is licensed under a{" "}
-        <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+        <a
+          rel="noreferrer"
+          target={"_blank"}
+          href="http://creativecommons.org/licenses/by/4.0/"
+        >
           Creative Commons Attribution 4.0 International License
         </a>
         .<br />
         Based on a work at{" "}
-        <a href="https://dovora.com/resources/weather-icons/" rel="dct:source">
+        <a
+          href="https://dovora.com/resources/weather-icons/"
+          rel="noreferrer"
+          target={"_blank"}
+        >
           https://dovora.com/resources/weather-icons/
         </a>
         .

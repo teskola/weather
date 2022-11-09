@@ -38,6 +38,9 @@ body {
   border: 1px solid #000480;
   margin: 0 1rem;
 }
+.btn:focus {
+  background-color: #460897;
+}
 
 .backdrop {
   position: fixed;

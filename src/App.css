@@ -32,3 +32,17 @@ button:active {
   font-size: xx-small;
   text-align: center;
 }
+
+.attribution a {
+  color: #fcb8d2;
+  text-decoration: none;
+}
+.attribution a:visited {
+  color: #460897;
+  text-decoration: none;
+}
+
+.logged {
+  font-size: x-small;
+  text-align: right;
+}

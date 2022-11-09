@@ -1,0 +1,8 @@
+.reset {
+  font-size: smaller;
+  color: #230052;
+  text-decoration: underline;
+}
+.reset:hover {
+  cursor: pointer;
+}
