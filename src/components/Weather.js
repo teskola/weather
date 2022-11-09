@@ -73,14 +73,6 @@ const Weather = (props) => {
     };
     content = (
       <>
-        <img
-          className="img-button"
-          src={refresh}
-          alt=""
-          onClick={fetchWeatherData}
-          width={10}
-          height={10}
-        />
         <h2 title={country ? country.name : ""}>{name}</h2>
         <div className="top" title="current temp">
           {`${Math.round(temp)} °C`}
@@ -122,7 +114,19 @@ const Weather = (props) => {
     );
   }
 
-  return <section className="weather">{content}</section>;
+  return (
+    <section className="weather">
+      <img
+        className="img-button"
+        src={refresh}
+        alt=""
+        onClick={fetchWeatherData}
+        width={10}
+        height={10}
+      />
+      {content}
+    </section>
+  );
 };
 
 export default Weather;

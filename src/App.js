@@ -171,6 +171,33 @@ function App() {
         </Switch>
         {user && `Logged in as ${user.email}`}
       </section>
+      <div className="attribution">
+        <span
+          href="http://purl.org/dc/dcmitype/StillImage"
+          property="dct:title"
+          rel="dct:type"
+        >
+          Weather Icons
+        </span>{" "}
+        by{" "}
+        <a
+          href="https://dovora.com"
+          property="cc:attributionName"
+          rel="cc:attributionURL"
+        >
+          Dovora Interactive
+        </a>{" "}
+        is licensed under a{" "}
+        <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">
+          Creative Commons Attribution 4.0 International License
+        </a>
+        .<br />
+        Based on a work at{" "}
+        <a href="https://dovora.com/resources/weather-icons/" rel="dct:source">
+          https://dovora.com/resources/weather-icons/
+        </a>
+        .
+      </div>
     </>
   );
 }
