@@ -9,7 +9,6 @@ import close_red from "../images/close_red.png";
 import refresh from "../images/refresh.png";
 
 const Weather = (props) => {
-  const API_KEY = "db665b34ad76791b17f190401a72755f";
   const url = `https://api.openweathermap.org/data/2.5/weather?lat=${props.lat}&lon=${props.lon}&appid=${API_KEY}&units=metric`;
 
   useEffect(() => {

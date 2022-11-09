@@ -19,7 +19,6 @@ import {
 } from "firebase/auth";
 
 function App() {
-  const API_KEY = "db665b34ad76791b17f190401a72755f";
   const [error, setError] = useState(null);
   const [locations, setLocations] = useState([]);
   const [user] = useAuthState(auth);
