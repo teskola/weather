@@ -7,14 +7,14 @@ const AddLocation = (props) => {
   const lonRef = useRef("");
   const [isAdding, setIsAdding] = useState(false);
 
-  const submitHandler = (event) => {
+  const submitHandler = async (event) => {
     event.preventDefault();
     setIsAdding(true);
     const location = {
       lat: latRef.current.value,
       lon: lonRef.current.value,
     };
-    props.onAddLocation(location);
+    await props.onAddLocation(location);
     history.push("/");
   };
 
@@ -43,12 +43,7 @@ const AddLocation = (props) => {
     content = <p>Login to add location.</p>;
   }
 
-  return (
-    <div>
-      {content}
-      <br></br>
-    </div>
-  );
+  return <div>{content}</div>;
 };
 
 export default AddLocation;

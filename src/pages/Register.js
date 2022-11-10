@@ -1,18 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useHistory } from "react-router-dom";
 import { auth } from "../firebase";
 
 const Register = (props) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const emailRef = useRef("");
+  const passwordRef = useRef("");
   const [user] = useAuthState(auth);
   const [isRegistering, setIsRegistering] = useState(false);
   const history = useHistory();
 
-  const register = () => {
+  const register = async () => {
     setIsRegistering(true);
-    props.onRegister(auth, email, password);
+    await props.onRegister(
+      auth,
+      emailRef.current.value,
+      passwordRef.current.value
+    );
     setIsRegistering(false);
   };
 
@@ -30,18 +34,8 @@ const Register = (props) => {
     <div>
       <h2>Register</h2>
       <div onKeyDown={handleKeyPress}>
-        <input
-          type="text"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Password"
-        />
+        <input type="text" ref={emailRef} placeholder="Email" />
+        <input type="password" ref={passwordRef} placeholder="Password" />
       </div>
       <br></br>
       {isRegistering && <p>Please wait</p>}

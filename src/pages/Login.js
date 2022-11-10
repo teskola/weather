@@ -3,26 +3,27 @@ import { useEffect, useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link, useHistory } from "react-router-dom";
 import { auth } from "../firebase";
-import { sendPasswordResetEmail } from "firebase/auth";
-import Message from "../components/Message";
 
 const Login = (props) => {
   const emailRef = useRef("");
   const passwordRef = useRef("");
-  const [message, setMessage] = useState(null);
+  const [waiting, setWaiting] = useState(false);
   const [user] = useAuthState(auth);
   const history = useHistory();
+
+  const login = async () => {
+    setWaiting(true);
+    await props.onEmailLogin(emailRef.current.value, passwordRef.current.value);
+    setWaiting(false);
+  };
 
   const resetPassword = async () => {
     if (emailRef.current.value === "") {
       document.getElementById("email").focus();
     } else {
-      try {
-        await sendPasswordResetEmail(emailRef.current.value);
-        setMessage(`Password reset email sent to: ${emailRef.current.value}`);
-      } catch (error) {
-        setMessage(error.message);
-      }
+      setWaiting(true);
+      await props.onPasswordReset(emailRef.current.value);
+      setWaiting(false);
     }
   };
 
@@ -32,16 +33,14 @@ const Login = (props) => {
 
   const handleKeyPress = (e) => {
     if (e.keyCode === 13) {
-      props.onEmailLogin(emailRef.current.value, passwordRef.current.value);
+      login();
     }
   };
 
   return (
     <div>
-      {message && (
-        <Message message={message} onConfirm={() => setMessage(null)} />
-      )}
       <h2>Login</h2>
+
       <form onKeyDown={handleKeyPress}>
         <input
           id="email"
@@ -52,15 +51,12 @@ const Login = (props) => {
         <input type="password" ref={passwordRef} placeholder="Password" />
       </form>
       <br></br>
-      <button
-        className="btn"
-        onClick={() =>
-          props.onEmailLogin(emailRef.current.value, passwordRef.current.value)
-        }
-        onKeyDown={handleKeyPress}
-      >
+      <button className="btn" onClick={login} onKeyDown={handleKeyPress}>
         OK
       </button>
+
+      {waiting && <p>Please wait.</p>}
+
       {/* <button onClick={signInWithGoogle}>Login with Google</button> */}
       <p className="reset" onClick={resetPassword}>
         Reset password

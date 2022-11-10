@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDg0mzMxP6GjArBrFYthymVlCV6capREcA",
@@ -15,15 +15,5 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
-const sendPasswordReset = async (email) => {
-  try {
-    await sendPasswordResetEmail(auth, email);
-    alert("Password reset link sent!");
-  } catch (error) {
-    console.error(error);
-    alert(error.message);
-  }
-};
-
-export { auth, sendPasswordReset, firebaseConfig };
+const fb_url = firebaseConfig.databaseURL;
+export { auth, fb_url };

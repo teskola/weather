@@ -1,7 +1,7 @@
 import "./App.css";
 
 import WeatherList from "./components/WeatherList";
-import AddLocationPage from "./pages/AddLocationPage";
+import AddLocation from "./pages/AddLocation";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NavigationBar from "./components/NavigationBar";
@@ -11,17 +11,16 @@ import { useState, useEffect } from "react";
 import { Route, Switch, useHistory } from "react-router-dom";
 
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "./firebase";
-import { firebaseConfig } from "./firebase";
+import { auth, fb_url } from "./firebase";
 import {
   createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from "firebase/auth";
 
 function App() {
   const API_KEY = "db665b34ad76791b17f190401a72755f";
-  const [error, setError] = useState(null);
-
+  const [message, setMessage] = useState(null);
   const [locations, setLocations] = useState([]);
   const [user] = useAuthState(auth);
   const history = useHistory();
@@ -35,7 +34,7 @@ function App() {
   }, [user, history]);
 
   /*
-   *********Tests fetching weather data for location before adding the location to database
+   *********Tests fetching weather data for a location before adding the location to database
    */
   async function addLocationHandler(location) {
     try {
@@ -45,7 +44,7 @@ function App() {
         throw new Error("Adding location failed.");
       } else {
         await fetch(
-          `${firebaseConfig.databaseURL}/${user.uid}/locations.json?auth=${auth.currentUser.accessToken}`,
+          `${fb_url}/${user.uid}/locations.json?auth=${auth.currentUser.accessToken}`,
           {
             method: "POST",
             body: JSON.stringify(location),
@@ -57,7 +56,7 @@ function App() {
         fetchLocations(user.uid);
       }
     } catch (error) {
-      setError(error.message);
+      setMessage(error.message);
     }
   }
 
@@ -67,7 +66,7 @@ function App() {
 
   async function deleteLocationHandler(id) {
     await fetch(
-      `${firebaseConfig.databaseURL}/${user.uid}/locations/${id}.json?auth=${auth.currentUser.accessToken}`,
+      `${fb_url}/${user.uid}/locations/${id}.json?auth=${auth.currentUser.accessToken}`,
       {
         method: "Delete",
         headers: {
@@ -84,7 +83,7 @@ function App() {
 */
   const fetchLocations = async (id) => {
     const response = await fetch(
-      `${firebaseConfig.databaseURL}/${id}/locations.json?auth=${auth.currentUser.accessToken}`
+      `${fb_url}/${id}/locations.json?auth=${auth.currentUser.accessToken}`
     );
     const data = await response.json();
 
@@ -110,11 +109,11 @@ function App() {
     try {
       newUser = await createUserWithEmailAndPassword(auth, email, password);
     } catch (error) {
-      setError(error.message);
+      setMessage(error.message);
     }
 
     await fetch(
-      `${firebaseConfig.databaseURL}/${newUser.user.uid}/locations.json?auth=${newUser.user.accessToken}`,
+      `${fb_url}/${newUser.user.uid}/locations.json?auth=${newUser.user.accessToken}`,
       {
         method: "POST",
         body: JSON.stringify({ lat: 61.5, lon: 23.79 }),
@@ -134,16 +133,31 @@ function App() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
-      setError(error.message);
+      setMessage(error.message);
     }
   }
+
+  /*
+   ****************Reset Password
+   */
+
+  const resetPasswordHandler = async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      setMessage(`Password reset email sent to: ${email}`);
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
 
   return (
     <>
       <NavigationBar userLoggedIn={user ? true : false} />
       <section>
         <div className="logged">{user && `Logged in as ${user.email}`}</div>
-        {error && <Message message={error} onConfirm={() => setError(null)} />}
+        {message && (
+          <Message message={message} onConfirm={() => setMessage(null)} />
+        )}
         <Switch>
           <Route path="/" exact>
             {user ? (
@@ -156,7 +170,7 @@ function App() {
             )}
           </Route>
           <Route path="/AddLocationPage">
-            <AddLocationPage
+            <AddLocation
               onAddLocation={addLocationHandler}
               userLoggedIn={user ? true : false}
             />
@@ -168,7 +182,10 @@ function App() {
             />
           </Route>
           <Route path="/Login">
-            <Login onEmailLogin={emailLoginHandler} />
+            <Login
+              onEmailLogin={emailLoginHandler}
+              onPasswordReset={resetPasswordHandler}
+            />
           </Route>
         </Switch>
       </section>
