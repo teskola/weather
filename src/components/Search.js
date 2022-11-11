@@ -9,7 +9,7 @@ const Search = (props) => {
 
   const submitHandler = async (event) => {
     event.preventDefault();
-    let url = "http://api.openweathermap.org/geo/1.0/direct?q=";
+    let url = "https://api.openweathermap.org/geo/1.0/direct?q=";
     const city = cityRef.current.value;
     const countryCode = countryRef.current.value;
     if (city) {
