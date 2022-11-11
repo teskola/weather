@@ -61,12 +61,13 @@ const Search = (props) => {
           className={badInput ? "input-red" : "input"}
           onChange={() => badInputState(false)}
         ></input>
-        <label htmlFor="country"></label>
         <select ref={countryRef} className="select">
           <option value="any">Country</option>
           <option value="any">any</option>
           {country_codes.map((country) => (
-            <option value={country.code}>{country.name}</option>
+            <option key={country.code} value={country.code}>
+              {country.name}
+            </option>
           ))}
         </select>
         <button className="btn">Find</button>
