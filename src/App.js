@@ -35,6 +35,8 @@ function App() {
 
   /*
    *********Tests fetching weather data for a location before adding the location to database
+   *********Returns 0: succesful
+   *********returns 1: failed
    */
   async function addLocationHandler(location) {
     try {
@@ -43,7 +45,7 @@ function App() {
       if (!response.ok) {
         throw new Error("Adding location failed.");
       } else {
-        await fetch(
+        const response = await fetch(
           `${fb_url}/${user.uid}/locations.json?auth=${auth.currentUser.accessToken}`,
           {
             method: "POST",
@@ -53,50 +55,84 @@ function App() {
             },
           }
         );
-        fetchLocations(user.uid);
+        console.log(response);
+        if (response.ok) {
+          fetchLocations(user.uid);
+          return 0;
+        } else {
+          return 1;
+        }
       }
     } catch (error) {
       setMessage(error.message);
+      return 1;
     }
   }
 
   /*
-   ***********Deletes location
+   ***********Deletes location and calls fetchLocations.
+   ***********Returns 0 : succesful
+   ***********Returns 1 : failed
    */
 
   async function deleteLocationHandler(id) {
-    await fetch(
-      `${fb_url}/${user.uid}/locations/${id}.json?auth=${auth.currentUser.accessToken}`,
-      {
-        method: "Delete",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    try {
+      const response = await fetch(
+        `${fb_url}/${user.uid}/locations/${id}.json?auth=${auth.currentUser.accessToken}`,
+        {
+          method: "Delete",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.ok) {
+        fetchLocations(user.uid);
+        return 0;
+      } else {
+        console.log("test");
+        return 1;
       }
-    );
-    fetchLocations(user.uid);
+    } catch (error) {
+      setMessage(error.message);
+      return 1;
+    }
   }
   /* 
 
 ***********Fetches locations from Firebase database.
+***********Returns 0: succesful
+***********Returns 1: failed
 
 */
   const fetchLocations = async (id) => {
-    const response = await fetch(
-      `${fb_url}/${id}/locations.json?auth=${auth.currentUser.accessToken}`
-    );
-    const data = await response.json();
+    try {
+      const response = await fetch(
+        `${fb_url}/${id}/locations.json?auth=${auth.currentUser.accessToken}`
+      );
+      const data = await response.json();
 
-    const fetchedLocations = [];
-    for (const key in data) {
-      fetchedLocations.push({
-        id: key,
-        lat: data[key].lat,
-        lon: data[key].lon,
-      });
+      const fetchedLocations = [];
+      for (const key in data) {
+        fetchedLocations.push({
+          id: key,
+          lat: data[key].lat,
+          lon: data[key].lon,
+        });
+      }
+      setLocations(fetchedLocations);
+      return 0;
+    } catch (error) {
+      setMessage(error.message);
+      return 1;
     }
+  };
 
-    setLocations(fetchedLocations);
+  /* ********Updates token */
+
+  const resetToken = async () => {
+    setMessage(null);
+    await auth.currentUser.getIdToken();
   };
 
   /* 
@@ -164,6 +200,7 @@ function App() {
               <WeatherList
                 locations={locations}
                 onDeleteLocation={deleteLocationHandler}
+                resetToken={resetToken}
               />
             ) : (
               <p>Login to see weather data.</p>
@@ -173,6 +210,7 @@ function App() {
             <AddLocation
               onAddLocation={addLocationHandler}
               userLoggedIn={user ? true : false}
+              resetToken={resetToken}
             />
           </Route>
           <Route path="/Register">

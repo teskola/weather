@@ -19,7 +19,7 @@ const Login = (props) => {
 
   const resetPassword = async () => {
     if (emailRef.current.value === "") {
-      document.getElementById("email").focus();
+      emailRef.current.focus();
     } else {
       setWaiting(true);
       await props.onPasswordReset(emailRef.current.value);
@@ -42,12 +42,7 @@ const Login = (props) => {
       <h2>Login</h2>
 
       <form onKeyDown={handleKeyPress}>
-        <input
-          id="email"
-          type="text"
-          ref={emailRef}
-          placeholder="E-mail address"
-        />
+        <input type="text" ref={emailRef} placeholder="E-mail address" />
         <input type="password" ref={passwordRef} placeholder="Password" />
       </form>
       <br></br>

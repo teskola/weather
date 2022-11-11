@@ -1,11 +1,17 @@
 import { useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
+import Search from "../components/Search";
 
 const AddLocation = (props) => {
   const history = useHistory();
   const latRef = useRef("");
   const lonRef = useRef("");
   const [isAdding, setIsAdding] = useState(false);
+
+  const setLatLon = (lat, lon) => {
+    latRef.current.value = lat;
+    lonRef.current.value = lon;
+  };
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -14,7 +20,10 @@ const AddLocation = (props) => {
       lat: latRef.current.value,
       lon: lonRef.current.value,
     };
-    await props.onAddLocation(location);
+    if ((await props.onAddLocation(location)) === 1) {
+      await props.resetToken();
+      await props.onAddLocation(location);
+    }
     history.push("/");
   };
 
@@ -43,7 +52,13 @@ const AddLocation = (props) => {
     content = <p>Login to add location.</p>;
   }
 
-  return <div>{content}</div>;
+  return (
+    <div>
+      <h2>Add Location</h2>
+      <Search setLatLon={setLatLon}></Search>
+      {content}
+    </div>
+  );
 };
 
 export default AddLocation;

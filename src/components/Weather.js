@@ -2,7 +2,6 @@ import "./Weather.css";
 import WeatherIcon from "./WeatherIcon";
 import { useState, useEffect } from "react";
 import country_codes from "../country_codes.json";
-
 import windarrow from "../images/windarrow.png";
 import close_black from "../images/close_black.png";
 import close_red from "../images/close_red.png";
@@ -28,9 +27,12 @@ const Weather = (props) => {
   const [isDeleting, setDeletingState] = useState(false);
   const [error, setError] = useState(null);
 
-  const deleteHandler = () => {
+  const deleteHandler = async () => {
     setDeletingState(true);
-    props.onDeleteLocation(props.id);
+    if ((await props.onDeleteLocation(props.id)) === 1) {
+      await props.resetToken();
+      await props.onDeleteLocation(props.id);
+    }
   };
 
   async function fetchWeatherData() {

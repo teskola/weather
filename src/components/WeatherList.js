@@ -11,6 +11,7 @@ const WeatherList = (props) => {
           lat={location.lat}
           lon={location.lon}
           onDeleteLocation={props.onDeleteLocation}
+          resetToken={props.resetToken}
         />
       ))}
     </ul>

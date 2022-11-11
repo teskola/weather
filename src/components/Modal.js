@@ -2,7 +2,7 @@ const Modal = (props) => {
   return (
     <div className="modal">
       <p>{props.message}</p>
-      <button className="btn" onClick={props.onConfirm}>
+      <button className="btn" autoFocus={true} onClick={props.onConfirm}>
         OK
       </button>
     </div>

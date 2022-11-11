@@ -51,3 +51,14 @@ body {
   top: 0;
   left: 0;
 }
+
+.select {
+  width: 100px;
+}
+
+.input-red {
+  background-color: rgb(255, 79, 79);
+}
+.input {
+  background-color: white;
+}

@@ -1,9 +1,5 @@
 [
   {
-    "code": "TW",
-    "name": "Taiwan"
-  },
-  {
     "code": "AF",
     "name": "Afghanistan"
   },
@@ -866,6 +862,10 @@
   {
     "code": "SY",
     "name": "Syria"
+  },
+  {
+    "code": "TW",
+    "name": "Taiwan"
   },
   {
     "code": "TJ",
