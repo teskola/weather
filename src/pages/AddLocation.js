@@ -20,7 +20,7 @@ const AddLocation = (props) => {
       lat: latRef.current.value,
       lon: lonRef.current.value,
     };
-    if ((await props.onAddLocation(location)) === 1) {
+    if ((await props.onAddLocation(location)) === 401) {
       await props.resetToken();
       await props.onAddLocation(location);
     }

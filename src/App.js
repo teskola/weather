@@ -35,8 +35,7 @@ function App() {
 
   /*
    *********Tests fetching weather data for a location before adding the location to database
-   *********Returns 0: succesful
-   *********returns 1: failed
+   *********Returns: http status code.
    */
   async function addLocationHandler(location) {
     try {
@@ -55,24 +54,19 @@ function App() {
             },
           }
         );
-        console.log(response);
         if (response.ok) {
           fetchLocations(user.uid);
-          return 0;
-        } else {
-          return 1;
         }
+        return response.status;
       }
     } catch (error) {
       setMessage(error.message);
-      return 1;
     }
   }
 
   /*
    ***********Deletes location and calls fetchLocations.
-   ***********Returns 0 : succesful
-   ***********Returns 1 : failed
+   ***********Returns http status code.
    */
 
   async function deleteLocationHandler(id) {
@@ -88,21 +82,15 @@ function App() {
       );
       if (response.ok) {
         fetchLocations(user.uid);
-        return 0;
-      } else {
-        console.log("test");
-        return 1;
       }
+      return response.status;
     } catch (error) {
       setMessage(error.message);
-      return 1;
     }
   }
   /* 
 
 ***********Fetches locations from Firebase database.
-***********Returns 0: succesful
-***********Returns 1: failed
 
 */
   const fetchLocations = async (id) => {
@@ -121,17 +109,14 @@ function App() {
         });
       }
       setLocations(fetchedLocations);
-      return 0;
     } catch (error) {
       setMessage(error.message);
-      return 1;
     }
   };
 
   /* ********Updates token */
 
   const resetToken = async () => {
-    setMessage(null);
     await auth.currentUser.getIdToken();
   };
 
