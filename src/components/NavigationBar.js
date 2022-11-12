@@ -34,6 +34,11 @@ const NavigationBar = (props) => {
 
       <nav>
         <ul>
+          {(props.anonymousLogin || !props.userLoggedIn) && (
+            <li>
+              <Link to="/register">Register</Link>
+            </li>
+          )}
           <li>{content}</li>
         </ul>
       </nav>

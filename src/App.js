@@ -14,6 +14,7 @@ import { auth, fb_url } from "./firebase";
 import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
+  signInAnonymously,
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import AddLocation from "./components/AddLocation";
@@ -106,7 +107,6 @@ function App() {
         }
         setLocations(fetchedLocations);
       }
-      return response.status;
     } catch (error) {
       setMessage(error.message);
     }
@@ -123,10 +123,14 @@ function App() {
   ************Registers new user and adds default location to database.
   */
 
-  async function registrationHandler(auth, email, password) {
+  async function registrationHandler(email, password) {
     let newUser;
     try {
-      newUser = await createUserWithEmailAndPassword(auth, email, password);
+      if (email && password) {
+        newUser = await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        newUser = await signInAnonymously(auth);
+      }
       await fetch(
         `${fb_url}/${newUser.user.uid}/locations.json?auth=${newUser.user.accessToken}`,
         {
@@ -173,11 +177,22 @@ function App() {
     }
   };
 
+  const loggedInAs = () => {
+    if (user.isAnonymous) {
+      return "anonymous";
+    } else {
+      return user.email;
+    }
+  };
+
   return (
     <>
-      <NavigationBar userLoggedIn={user ? true : false} />
+      <NavigationBar
+        userLoggedIn={user ? true : false}
+        anonymousLogin={user ? user.isAnonymous : false}
+      />
       <section>
-        <div className="logged">{user && `Logged in as ${user.email}`}</div>
+        <div className="logged">{user && `Logged in as ${loggedInAs()}`}</div>
         {message && (
           <Message message={message} onConfirm={() => setMessage(null)} />
         )}
@@ -210,6 +225,7 @@ function App() {
             <Login
               onEmailLogin={emailLoginHandler}
               onPasswordReset={resetPasswordHandler}
+              onRegister={registrationHandler}
             />
           </Route>
         </Switch>

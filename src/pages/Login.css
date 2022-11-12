@@ -3,6 +3,13 @@
   color: #230052;
   text-decoration: underline;
 }
+.anonymous {
+  color: #230052;
+  text-decoration: underline;
+}
 .reset:hover {
+  cursor: pointer;
+}
+.anonymous:hover {
   cursor: pointer;
 }

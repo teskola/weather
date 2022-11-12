@@ -11,6 +11,11 @@ const Login = (props) => {
   const [user] = useAuthState(auth);
   const history = useHistory();
 
+  const anonymousLogin = async () => {
+    setWaiting(true);
+    await props.onRegister();
+  };
+
   const login = async () => {
     setWaiting(true);
     await props.onEmailLogin(emailRef.current.value, passwordRef.current.value);
@@ -58,6 +63,9 @@ const Login = (props) => {
       </p>
       <p>
         <Link to="/Register">Don't have an account yet? Register.</Link>
+      </p>
+      <p className="anonymous" onClick={anonymousLogin}>
+        Continue anonymously.
       </p>
     </div>
   );

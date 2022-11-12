@@ -12,11 +12,9 @@ const Register = (props) => {
 
   const register = async () => {
     setIsRegistering(true);
-    await props.onRegister(
-      auth,
-      emailRef.current.value,
-      passwordRef.current.value
-    );
+    if (!user) {
+      await props.onRegister(emailRef.current.value, passwordRef.current.value);
+    }
     setIsRegistering(false);
   };
 
@@ -27,7 +25,7 @@ const Register = (props) => {
   };
 
   useEffect(() => {
-    if (user && !isRegistering) history.push("/");
+    if (user && !isRegistering && !user.isAnonymous) history.push("/");
   }, [user, history, isRegistering]);
 
   return (
