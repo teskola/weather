@@ -76,7 +76,7 @@ const AddLocation = (props) => {
             <input
               type="text"
               ref={cityRef}
-              size={10}
+              size={8}
               placeholder="City name"
               onKeyDown={handleKeyPress}
             ></input>

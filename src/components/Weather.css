@@ -29,7 +29,7 @@
   margin: 1rem auto;
   padding: 1.5rem;
   border-radius: 12px;
-  width: 75%;
+  width: 80%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -47,18 +47,21 @@
   align-items: flex-end;
 }
 
+.parent {
+  display: grid;
+  grid-template-columns: 5rem 60px;
+  grid-template-rows: 40px 20px;
+  grid-column-gap: 0px;
+  grid-row-gap: 0px;
+}
+
 .top {
-  margin: auto;
   text-align: center;
   font-size: x-large;
-  min-width: 60px;
-  height: 60px;
-  display: table-cell;
-  vertical-align: bottom;
 }
 .bottom {
-  display: block;
   font-size: small;
+  text-align: center;
 }
 
 .img-button {

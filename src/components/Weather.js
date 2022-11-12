@@ -77,15 +77,10 @@ const Weather = (props) => {
           <div className="location">
             <h3 title={country ? country.name : ""}>{props.name}</h3>
           </div>
-          <div>
-            <div className="top" title="current temp">
-              <span className="temp">{`${Math.round(temp)} °C`}</span>
-              <span className="bottom" title="feels like">{`${Math.round(
-                feelsLike
-              )} °C`}</span>
+          <div className="parent">
+            <div title="current temp" className="top">
+              <span>{`${Math.round(temp)} °C`}</span>
             </div>
-          </div>
-          <div>
             <div className="top">
               <img
                 src={windarrow}
@@ -95,11 +90,15 @@ const Weather = (props) => {
                 width={25}
                 height={25}
               />
-              <span className="bottom" title="wind speed">{`${Math.round(
-                windSpeed
-              )} m/s`}</span>
+            </div>
+            <div className="bottom">
+              <span title="feels like">{`${Math.round(feelsLike)} °C`}</span>
+            </div>
+            <div className="bottom">
+              <span title="wind speed">{`${Math.round(windSpeed)} m/s`}</span>
             </div>
           </div>
+
           <div>
             <div className="top">
               <WeatherIcon
@@ -112,18 +111,17 @@ const Weather = (props) => {
             </div>
           </div>
         </div>
-        <div>
-          <img
-            className="img-button"
-            onClick={deleteHandler}
-            onMouseOver={(event) => (event.currentTarget.src = close_red)}
-            onMouseOut={(event) => (event.currentTarget.src = close_black)}
-            src={close_black}
-            alt=""
-            width={10}
-            height={10}
-          />
-        </div>
+
+        <img
+          className="img-button"
+          onClick={deleteHandler}
+          onMouseOver={(event) => (event.currentTarget.src = close_red)}
+          onMouseOut={(event) => (event.currentTarget.src = close_black)}
+          src={close_black}
+          alt=""
+          width={10}
+          height={10}
+        />
       </>
     );
   }

@@ -28,6 +28,7 @@ function App() {
   useEffect(() => {
     if (user) {
       fetchLocations(user.uid);
+      history.push("/");
     } else {
       history.push("/Login");
     }
@@ -147,7 +148,6 @@ function App() {
         }
       );
       await fetchLocations(newUser.user.uid);
-      history.push("/");
     } catch (error) {
       setMessage(error.message);
     }
@@ -160,7 +160,6 @@ function App() {
   async function emailLoginHandler(email, password) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      history.push("/");
     } catch (error) {
       setMessage(error.message);
     }
