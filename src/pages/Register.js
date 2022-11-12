@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useHistory } from "react-router-dom";
 import { auth } from "../firebase";
 
 const Register = (props) => {
@@ -8,11 +7,10 @@ const Register = (props) => {
   const passwordRef = useRef("");
   const [user] = useAuthState(auth);
   const [isRegistering, setIsRegistering] = useState(false);
-  const history = useHistory();
 
   const register = async () => {
     setIsRegistering(true);
-    if (!user) {
+    if (!user || user.isAnonymous) {
       await props.onRegister(emailRef.current.value, passwordRef.current.value);
     }
     setIsRegistering(false);
@@ -23,10 +21,6 @@ const Register = (props) => {
       register();
     }
   };
-
-  useEffect(() => {
-    if (user && !isRegistering && !user.isAnonymous) history.push("/");
-  }, [user, history, isRegistering]);
 
   return (
     <div>

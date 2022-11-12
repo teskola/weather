@@ -30,10 +30,10 @@ const AddLocation = (props) => {
         locationName += "," + countryRef.current.value;
       }
       url += locationName + "&appid=" + API_KEY;
-      const [lat, lon, countryCode] = await findGeoCode(url);
+      const [lat, lon, countryCode, name] = await findGeoCode(url);
       if (lat && lon) {
         const location = {
-          name: city,
+          name: name,
           countryCode: countryCode,
           lat: lat,
           lon: lon,
@@ -51,9 +51,9 @@ const AddLocation = (props) => {
       const response = await fetch(url);
       const data = await response.json();
       if (data.length > 0) {
-        return [data[0].lat, data[0].lon, data[0].country];
+        return [data[0].lat, data[0].lon, data[0].country, data[0].name];
       } else {
-        return [null, null, null];
+        return [null, null, null, null];
       }
     } catch (error) {
       console.log(error.message);

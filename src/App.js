@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NavigationBar from "./components/NavigationBar";
 import Message from "./components/Message";
+import AddLocation from "./components/AddLocation";
 
 import { useState, useEffect } from "react";
 import { Route, Switch, useHistory } from "react-router-dom";
@@ -17,7 +18,6 @@ import {
   signInAnonymously,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import AddLocation from "./components/AddLocation";
 
 function App() {
   const [message, setMessage] = useState(null);
@@ -146,7 +146,8 @@ function App() {
           },
         }
       );
-      fetchLocations(newUser.user.uid);
+      await fetchLocations(newUser.user.uid);
+      history.push("/");
     } catch (error) {
       setMessage(error.message);
     }
@@ -159,6 +160,7 @@ function App() {
   async function emailLoginHandler(email, password) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      history.push("/");
     } catch (error) {
       setMessage(error.message);
     }

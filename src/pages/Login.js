@@ -1,15 +1,11 @@
 import "./Login.css";
-import { useEffect, useRef, useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { Link, useHistory } from "react-router-dom";
-import { auth } from "../firebase";
+import { useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 const Login = (props) => {
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const [waiting, setWaiting] = useState(false);
-  const [user] = useAuthState(auth);
-  const history = useHistory();
 
   const anonymousLogin = async () => {
     setWaiting(true);
@@ -31,11 +27,6 @@ const Login = (props) => {
       setWaiting(false);
     }
   };
-
-  useEffect(() => {
-    if (user) history.push("/");
-  }, [user, history]);
-
   const handleKeyPress = (e) => {
     if (e.keyCode === 13) {
       login();
