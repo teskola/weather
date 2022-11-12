@@ -220,6 +220,7 @@ function App() {
             <Register
               onRegister={registrationHandler}
               addLocation={addLocationHandler}
+              user={user}
             />
           </Route>
           <Route path="/Login">

@@ -38,7 +38,7 @@ const Login = (props) => {
       <h2>Login</h2>
 
       <form onKeyDown={handleKeyPress}>
-        <input type="text" ref={emailRef} placeholder="E-mail address" />
+        <input type="email" ref={emailRef} placeholder="E-mail address" />
         <input type="password" ref={passwordRef} placeholder="Password" />
       </form>
       <br></br>

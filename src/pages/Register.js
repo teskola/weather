@@ -1,16 +1,13 @@
 import { useRef, useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../firebase";
 
 const Register = (props) => {
   const emailRef = useRef("");
   const passwordRef = useRef("");
-  const [user] = useAuthState(auth);
   const [isRegistering, setIsRegistering] = useState(false);
 
   const register = async () => {
     setIsRegistering(true);
-    if (!user || user.isAnonymous) {
+    if (emailRef && (!props.user || props.user.isAnonymous)) {
       await props.onRegister(emailRef.current.value, passwordRef.current.value);
     }
     setIsRegistering(false);
@@ -26,7 +23,7 @@ const Register = (props) => {
     <div>
       <h2>Register</h2>
       <div onKeyDown={handleKeyPress}>
-        <input type="text" ref={emailRef} placeholder="Email" />
+        <input type="email" ref={emailRef} placeholder="Email" />
         <input type="password" ref={passwordRef} placeholder="Password" />
       </div>
       <br></br>
