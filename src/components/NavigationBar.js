@@ -34,12 +34,6 @@ const NavigationBar = (props) => {
 
       <nav>
         <ul>
-          <li>
-            <Link to="/">Weather</Link>
-          </li>
-          <li>
-            <Link to="/AddLocationPage">Add Location</Link>
-          </li>
           <li>{content}</li>
         </ul>
       </nav>

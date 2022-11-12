@@ -1,24 +1,40 @@
 .weather {
   width: 100%;
   display: flex;
-  gap: 15px;
   padding: 1rem;
+  text-align: left;
   background-color: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
-  text-align: left;
 }
 
-.weather h2 {
-  font-size: 1.2rem;
-  flex-grow: 1;
-  color: black;
+.container {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: center;
+  margin-right: 10px;
+  gap: 10px;
 }
 
-.weather h3 {
-  color: black;
+.location {
   flex-grow: 1;
-  margin: 0;
-  font-size: 1rem;
+}
+
+.temp {
+  display: flex;
+  align-items: center;
+}
+
+.addlocation {
+  margin: 1rem auto;
+  padding: 1.5rem;
+  border-radius: 12px;
+  width: 75%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
 }
 
 .weather-list {
@@ -28,19 +44,27 @@
 }
 
 .weather img {
-  vertical-align: middle;
+  align-items: flex-end;
 }
 
 .top {
   margin: auto;
-  display: inline-block;
   text-align: center;
-  font-size: 1.5rem;
+  font-size: x-large;
+  min-width: 60px;
+  height: 60px;
+  display: table-cell;
+  vertical-align: bottom;
 }
 .bottom {
   display: block;
-  font-size: 0.75rem;
+  font-size: small;
 }
+
 .img-button {
   cursor: pointer;
+}
+
+.select {
+  width: 5rem;
 }

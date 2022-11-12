@@ -8,6 +8,8 @@ const WeatherList = (props) => {
         <Weather
           id={location.id}
           key={location.id}
+          countryCode={location.countryCode}
+          name={location.name}
           lat={location.lat}
           lon={location.lon}
           onDeleteLocation={props.onDeleteLocation}

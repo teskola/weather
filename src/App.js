@@ -1,7 +1,6 @@
 import "./App.css";
 
 import WeatherList from "./components/WeatherList";
-import AddLocation from "./pages/AddLocation";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NavigationBar from "./components/NavigationBar";
@@ -17,9 +16,9 @@ import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from "firebase/auth";
+import AddLocation from "./components/AddLocation";
 
 function App() {
-  const API_KEY = "db665b34ad76791b17f190401a72755f";
   const [message, setMessage] = useState(null);
   const [locations, setLocations] = useState([]);
   const [user] = useAuthState(auth);
@@ -34,31 +33,25 @@ function App() {
   }, [user, history]);
 
   /*
-   *********Tests fetching weather data for a location before adding the location to database
+   *********Adds location to database
    *********Returns: http status code.
    */
   async function addLocationHandler(location) {
     try {
-      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${location.lat}&lon=${location.lon}&appid=${API_KEY}`;
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error("Adding location failed.");
-      } else {
-        const response = await fetch(
-          `${fb_url}/${user.uid}/locations.json?auth=${auth.currentUser.accessToken}`,
-          {
-            method: "POST",
-            body: JSON.stringify(location),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        if (response.ok) {
-          fetchLocations(user.uid);
+      const response = await fetch(
+        `${fb_url}/${user.uid}/locations.json?auth=${auth.currentUser.accessToken}`,
+        {
+          method: "POST",
+          body: JSON.stringify(location),
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-        return response.status;
+      );
+      if (response.ok) {
+        fetchLocations(user.uid);
       }
+      return response.status;
     } catch (error) {
       setMessage(error.message);
     }
@@ -91,6 +84,7 @@ function App() {
   /* 
 
 ***********Fetches locations from Firebase database.
+***********Returns http status code
 
 */
   const fetchLocations = async (id) => {
@@ -99,16 +93,20 @@ function App() {
         `${fb_url}/${id}/locations.json?auth=${auth.currentUser.accessToken}`
       );
       const data = await response.json();
-
-      const fetchedLocations = [];
-      for (const key in data) {
-        fetchedLocations.push({
-          id: key,
-          lat: data[key].lat,
-          lon: data[key].lon,
-        });
+      if (response.ok) {
+        const fetchedLocations = [];
+        for (const key in data) {
+          fetchedLocations.push({
+            id: key,
+            name: data[key].name,
+            countryCode: data[key].countryCode,
+            lat: data[key].lat,
+            lon: data[key].lon,
+          });
+        }
+        setLocations(fetchedLocations);
       }
-      setLocations(fetchedLocations);
+      return response.status;
     } catch (error) {
       setMessage(error.message);
     }
@@ -129,21 +127,25 @@ function App() {
     let newUser;
     try {
       newUser = await createUserWithEmailAndPassword(auth, email, password);
+      await fetch(
+        `${fb_url}/${newUser.user.uid}/locations.json?auth=${newUser.user.accessToken}`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            lat: 61.5,
+            lon: 23.79,
+            name: "Tampere",
+            countryCode: "FI",
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      fetchLocations(newUser.user.uid);
     } catch (error) {
       setMessage(error.message);
     }
-
-    await fetch(
-      `${fb_url}/${newUser.user.uid}/locations.json?auth=${newUser.user.accessToken}`,
-      {
-        method: "POST",
-        body: JSON.stringify({ lat: 61.5, lon: 23.79 }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    fetchLocations(newUser.user.uid);
   }
 
   /*
@@ -182,21 +184,21 @@ function App() {
         <Switch>
           <Route path="/" exact>
             {user ? (
-              <WeatherList
-                locations={locations}
-                onDeleteLocation={deleteLocationHandler}
-                resetToken={resetToken}
-              />
+              <div>
+                <WeatherList
+                  locations={locations}
+                  onDeleteLocation={deleteLocationHandler}
+                  resetToken={resetToken}
+                />
+                <AddLocation
+                  onAddLocation={addLocationHandler}
+                  resetToken={resetToken}
+                  setMessage={setMessage}
+                />
+              </div>
             ) : (
               <p>Login to see weather data.</p>
             )}
-          </Route>
-          <Route path="/AddLocationPage">
-            <AddLocation
-              onAddLocation={addLocationHandler}
-              userLoggedIn={user ? true : false}
-              resetToken={resetToken}
-            />
           </Route>
           <Route path="/Register">
             <Register
@@ -212,7 +214,7 @@ function App() {
           </Route>
         </Switch>
       </section>
-      <div className="attribution">
+      <div className="license">
         Weather Icons by{" "}
         <a
           target={"_blank"}

@@ -1,6 +1,5 @@
 section {
   margin: 1rem auto;
-  width: 90%;
   max-width: 40rem;
   text-align: center;
   background-color: #cacaca;
@@ -28,16 +27,16 @@ button:active {
   border-color: #460897;
 }
 
-.attribution {
+.license {
   font-size: xx-small;
   text-align: center;
 }
 
-.attribution a {
+.license a {
   color: #fcb8d2;
   text-decoration: none;
 }
-.attribution a:visited {
+.license a:visited {
   color: white;
   text-decoration: none;
 }
