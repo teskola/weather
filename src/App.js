@@ -11,12 +11,13 @@ import { useState, useEffect } from "react";
 import { Route, Switch, useHistory } from "react-router-dom";
 
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, fb_url } from "./firebase";
+import { auth, fb_url, provider } from "./firebase";
 import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   signInAnonymously,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
 } from "firebase/auth";
 
@@ -133,6 +134,7 @@ function App() {
   async function registrationHandler(email, password) {
     let newUser;
     const tampere = {
+      id: "default",
       name: "Tampere",
       countryCode: "FI",
       lat: 61.4980214,
@@ -156,6 +158,7 @@ function App() {
       );
     } catch (error) {
       setMessage(error.message);
+      history.push("/register");
     }
   }
 
@@ -179,6 +182,18 @@ function App() {
       setMessage(error.message);
     }
   }
+
+  /*
+   **************Login with Google
+   */
+
+  const googleLoginHandler = async () => {
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
 
   /*
    ****************Reset Password
@@ -247,6 +262,7 @@ function App() {
               onPasswordReset={resetPasswordHandler}
               onRegister={registrationHandler}
               setRegisteringState={setRegisteringState}
+              onGoogleLogin={googleLoginHandler}
             />
           </Route>
         </Switch>

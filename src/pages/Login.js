@@ -1,11 +1,18 @@
 import "./Login.css";
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import google_btn from "../images/btn_google_signin_light_normal_web.png";
 
 const Login = (props) => {
   const emailRef = useRef("");
   const passwordRef = useRef("");
   const [waiting, setWaiting] = useState(false);
+
+  const googleLogin = async () => {
+    props.setRegisteringState(true);
+    await props.onGoogleLogin();
+    props.setRegisteringState(false);
+  };
 
   const anonymousLogin = async () => {
     setWaiting(true);
@@ -53,6 +60,14 @@ const Login = (props) => {
 
       <p className="reset" onClick={resetPassword}>
         Reset password
+      </p>
+      <p>
+        <img
+          src={google_btn}
+          className="img-button"
+          alt="Sign in with Google"
+          onClick={googleLogin}
+        ></img>
       </p>
       <p>
         <Link to="/Register">Don't have an account yet? Register.</Link>
