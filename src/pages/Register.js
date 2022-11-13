@@ -7,7 +7,7 @@ const Register = (props) => {
 
   const register = async () => {
     setIsRegistering(true);
-    if (emailRef && (!props.user || props.user.isAnonymous)) {
+    if (emailRef.current.value && (!props.user || props.user.isAnonymous)) {
       await props.onRegister(emailRef.current.value, passwordRef.current.value);
     }
     setIsRegistering(false);
@@ -31,7 +31,6 @@ const Register = (props) => {
       <button className="btn" onClick={register} onKeyDown={handleKeyPress}>
         OK
       </button>
-      {/*  <button onClick={signInWithGoogle}>Register with Google</button> */}
     </div>
   );
 };
