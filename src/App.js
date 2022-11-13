@@ -17,6 +17,7 @@ import {
   sendPasswordResetEmail,
   signInAnonymously,
   signInWithEmailAndPassword,
+  signOut,
 } from "firebase/auth";
 
 function App() {
@@ -154,6 +155,15 @@ function App() {
   }
 
   /*
+   ***************Logout
+   */
+
+  const logOutHandler = () => {
+    signOut(auth);
+    setMessage("Logged out succesfully.");
+  };
+
+  /*
    **************Login using email and password
    */
 
@@ -191,6 +201,7 @@ function App() {
       <NavigationBar
         userLoggedIn={user ? true : false}
         anonymousLogin={user ? user.isAnonymous : false}
+        onLogout={logOutHandler}
       />
       <section>
         <div className="logged">{user && `Logged in as ${loggedInAs()}`}</div>

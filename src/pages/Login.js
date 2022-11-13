@@ -48,7 +48,6 @@ const Login = (props) => {
 
       {waiting && <p>Please wait.</p>}
 
-      {/* <button onClick={signInWithGoogle}>Login with Google</button> */}
       <p className="reset" onClick={resetPassword}>
         Reset password
       </p>

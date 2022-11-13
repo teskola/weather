@@ -1,21 +1,11 @@
-import { signOut } from "firebase/auth";
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { auth } from "../firebase";
-import Message from "./Message";
-
 import "./NavigationBar.css";
 
 const NavigationBar = (props) => {
-  const [showMessage, setShowMessage] = useState(false);
-  const logOutHandler = () => {
-    signOut(auth);
-    setShowMessage(true);
-  };
   let content;
   if (props.userLoggedIn) {
     content = (
-      <Link to="/Login" onClick={logOutHandler}>
+      <Link to="/Login" onClick={props.onLogout}>
         Logout
       </Link>
     );
@@ -25,13 +15,6 @@ const NavigationBar = (props) => {
 
   return (
     <div className="header">
-      {showMessage && (
-        <Message
-          message={"Logged out succesfully."}
-          onConfirm={() => setShowMessage(false)}
-        />
-      )}
-
       <nav>
         <ul>
           {(props.anonymousLogin || !props.userLoggedIn) && (

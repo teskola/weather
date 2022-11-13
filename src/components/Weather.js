@@ -32,8 +32,8 @@ const Weather = (props) => {
   const deleteHandler = async () => {
     setDeletingState(true);
     if ((await props.onDeleteLocation(props.id)) === 401) {
-      props.resetToken();
-      props.onDeleteLocation(props.id);
+      await props.resetToken();
+      await props.onDeleteLocation(props.id);
     }
   };
 
