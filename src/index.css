@@ -11,10 +11,6 @@ body {
   background-color: #272727;
 }
 
-.monospace {
-  font-family: monospace;
-}
-
 .modal {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   border-radius: 6px;

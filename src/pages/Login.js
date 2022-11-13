@@ -9,7 +9,10 @@ const Login = (props) => {
 
   const anonymousLogin = async () => {
     setWaiting(true);
+    props.setRegisteringState(true);
     await props.onRegister();
+    setWaiting(false);
+    props.setRegisteringState(false);
   };
 
   const login = async () => {

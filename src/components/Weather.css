@@ -25,18 +25,6 @@
   align-items: center;
 }
 
-.addlocation {
-  margin: 1rem auto;
-  padding: 1.5rem;
-  border-radius: 12px;
-  width: 80%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
-}
-
 .weather-list {
   list-style: none;
   margin: 0;
@@ -66,8 +54,4 @@
 
 .img-button {
   cursor: pointer;
-}
-
-.select {
-  width: 5rem;
 }

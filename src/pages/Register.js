@@ -3,14 +3,13 @@ import { useRef, useState } from "react";
 const Register = (props) => {
   const emailRef = useRef("");
   const passwordRef = useRef("");
-  const [isRegistering, setIsRegistering] = useState(false);
 
   const register = async () => {
-    setIsRegistering(true);
+    props.setRegisteringState(true);
     if (emailRef.current.value && (!props.user || props.user.isAnonymous)) {
       await props.onRegister(emailRef.current.value, passwordRef.current.value);
     }
-    setIsRegistering(false);
+    props.setRegisteringState(false);
   };
 
   const handleKeyPress = (e) => {
@@ -27,7 +26,7 @@ const Register = (props) => {
         <input type="password" ref={passwordRef} placeholder="Password" />
       </div>
       <br></br>
-      {isRegistering && <p>Please wait</p>}
+      {props.isRegistering && <p>Please wait</p>}
       <button className="btn" onClick={register} onKeyDown={handleKeyPress}>
         OK
       </button>

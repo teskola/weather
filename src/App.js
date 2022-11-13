@@ -23,20 +23,23 @@ import {
 function App() {
   const [message, setMessage] = useState(null);
   const [locations, setLocations] = useState([]);
+  const [isRegistering, setRegisteringState] = useState(false);
   const [user] = useAuthState(auth);
   const history = useHistory();
 
   useEffect(() => {
-    if (user) {
-      fetchLocations(user.uid);
-      history.push("/");
-    } else {
-      history.push("/Login");
+    if (!isRegistering) {
+      if (user) {
+        fetchLocations(user.uid);
+        history.push("/");
+      } else {
+        history.push("/Login");
+      }
     }
-  }, [user, history]);
+  }, [user, history, isRegistering]);
 
   /*
-   *********Adds location to database
+   *********Adds location to database and to locations array
    *********Returns: http status code.
    */
   async function addLocationHandler(location) {
@@ -52,7 +55,7 @@ function App() {
         }
       );
       if (response.ok) {
-        fetchLocations(user.uid);
+        setLocations((current) => [...current, location]);
       }
       return response.status;
     } catch (error) {
@@ -61,7 +64,7 @@ function App() {
   }
 
   /*
-   ***********Deletes location and calls fetchLocations.
+   ***********Deletes location from database and locations array
    ***********Returns http status code.
    */
 
@@ -77,7 +80,9 @@ function App() {
         }
       );
       if (response.ok) {
-        fetchLocations(user.uid);
+        setLocations((current) =>
+          current.filter((location) => location.id !== id)
+        );
       }
       return response.status;
     } catch (error) {
@@ -127,6 +132,12 @@ function App() {
 
   async function registrationHandler(email, password) {
     let newUser;
+    const tampere = {
+      name: "Tampere",
+      countryCode: "FI",
+      lat: 61.4980214,
+      lon: 23.7603118,
+    };
     try {
       if (email && password) {
         newUser = await createUserWithEmailAndPassword(auth, email, password);
@@ -137,18 +148,12 @@ function App() {
         `${fb_url}/${newUser.user.uid}/locations.json?auth=${newUser.user.accessToken}`,
         {
           method: "POST",
-          body: JSON.stringify({
-            lat: 61.5,
-            lon: 23.79,
-            name: "Tampere",
-            countryCode: "FI",
-          }),
+          body: JSON.stringify(tampere),
           headers: {
             "Content-Type": "application/json",
           },
         }
       );
-      await fetchLocations(newUser.user.uid);
     } catch (error) {
       setMessage(error.message);
     }
@@ -232,6 +237,8 @@ function App() {
               onRegister={registrationHandler}
               addLocation={addLocationHandler}
               user={user}
+              setRegisteringState={setRegisteringState}
+              isRegistering={isRegistering}
             />
           </Route>
           <Route path="/Login">
@@ -239,6 +246,7 @@ function App() {
               onEmailLogin={emailLoginHandler}
               onPasswordReset={resetPasswordHandler}
               onRegister={registrationHandler}
+              setRegisteringState={setRegisteringState}
             />
           </Route>
         </Switch>

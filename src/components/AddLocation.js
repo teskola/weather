@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import country_codes from "../country_codes.json";
-import "./Weather.css";
+import "./AddLocation.css";
 
 const AddLocation = (props) => {
   const API_KEY = "db665b34ad76791b17f190401a72755f";
