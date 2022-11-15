@@ -1,15 +1,22 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 const Register = (props) => {
   const emailRef = useRef("");
   const passwordRef = useRef("");
+  const [isRegistering, setRegisteringState] = useState(false);
 
   const register = async () => {
-    props.setRegisteringState(true);
-    if (emailRef.current.value && (!props.user || props.user.isAnonymous)) {
-      await props.onRegister(emailRef.current.value, passwordRef.current.value);
+    if (!emailRef.current.value) {
+      emailRef.current.focus();
+    } else if (!props.auth.currentUser || props.auth.currentUser.isAnonymous) {
+      setRegisteringState(true);
+      await props.onRegister(
+        emailRef.current.value,
+        passwordRef.current.value,
+        props.auth
+      );
+      setRegisteringState(false);
     }
-    props.setRegisteringState(false);
   };
 
   const handleKeyPress = (e) => {
@@ -26,7 +33,7 @@ const Register = (props) => {
         <input type="password" ref={passwordRef} placeholder="Password" />
       </div>
       <br></br>
-      {props.isRegistering && <p>Please wait</p>}
+      {isRegistering && <p>Please wait</p>}
       <button className="btn" onClick={register} onKeyDown={handleKeyPress}>
         OK
       </button>

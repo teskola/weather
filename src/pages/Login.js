@@ -9,22 +9,24 @@ const Login = (props) => {
   const [waiting, setWaiting] = useState(false);
 
   const googleLogin = async () => {
-    props.setRegisteringState(true);
-    await props.onGoogleLogin();
-    props.setRegisteringState(false);
+    setWaiting(true);
+    await props.onGoogleLogin(props.auth);
+    setWaiting(false);
   };
 
   const anonymousLogin = async () => {
     setWaiting(true);
-    props.setRegisteringState(true);
-    await props.onRegister();
+    await props.onRegister(null, null, props.auth);
     setWaiting(false);
-    props.setRegisteringState(false);
   };
 
   const login = async () => {
     setWaiting(true);
-    await props.onEmailLogin(emailRef.current.value, passwordRef.current.value);
+    await props.onEmailLogin(
+      emailRef.current.value,
+      passwordRef.current.value,
+      props.auth
+    );
     setWaiting(false);
   };
 
@@ -33,7 +35,7 @@ const Login = (props) => {
       emailRef.current.focus();
     } else {
       setWaiting(true);
-      await props.onPasswordReset(emailRef.current.value);
+      await props.onPasswordReset(emailRef.current.value, props.auth);
       setWaiting(false);
     }
   };

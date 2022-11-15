@@ -9,9 +9,9 @@ const AddLocation = (props) => {
   const [isLoading, setLoadingState] = useState(false);
 
   const addLocation = async (location) => {
-    if ((await props.onAddLocation(location)) === 401) {
-      await props.resetToken();
-      await props.onAddLocation(location);
+    if ((await props.onAddLocation(location, props.user)) === 401) {
+      await props.user.getIdToken();
+      props.onAddLocation(location, props.user);
     }
     setLoadingState(false);
   };
@@ -33,6 +33,7 @@ const AddLocation = (props) => {
       const [lat, lon, countryCode, name] = await findGeoCode(url);
       if (lat && lon) {
         const location = {
+          id: null,
           name: name,
           countryCode: countryCode,
           lat: lat,

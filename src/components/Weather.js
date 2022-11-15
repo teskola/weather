@@ -31,15 +31,15 @@ const Weather = (props) => {
 
   const deleteHandler = async () => {
     setDeletingState(true);
-    if ((await props.onDeleteLocation(props.id)) === 401) {
-      await props.resetToken();
-      await props.onDeleteLocation(props.id);
+    if ((await props.onDeleteLocation(props.id, props.user)) === 401) {
+      await props.user.getIdToken();
+      props.onDeleteLocation(props.id, props.user);
     }
+    setDeletingState(false);
   };
 
   async function fetchWeatherData() {
     const unixTime = Date.now() / 1000;
-    setDeletingState(false);
     setLoadingState(true);
     try {
       const response = await fetch(url);

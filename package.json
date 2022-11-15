@@ -1,6 +1,6 @@
 {
   "name": "weather",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
@@ -9,7 +9,6 @@
     "firebase": "^9.13.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-firebase-hooks": "^5.1.0",
     "react-router-dom": "^5.3.4",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"

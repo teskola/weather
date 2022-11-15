@@ -3,9 +3,9 @@ import "./NavigationBar.css";
 
 const NavigationBar = (props) => {
   let content;
-  if (props.userLoggedIn) {
+  if (props.auth.currentUser) {
     content = (
-      <Link to="/Login" onClick={props.onLogout}>
+      <Link to="/Login" onClick={() => props.onLogout(props.auth)}>
         Logout
       </Link>
     );
@@ -17,7 +17,7 @@ const NavigationBar = (props) => {
     <div className="header">
       <nav>
         <ul>
-          {(props.anonymousLogin || !props.userLoggedIn) && (
+          {(!props.auth.currentUser || props.auth.currentUser.isAnonymous) && (
             <li>
               <Link to="/register">Register</Link>
             </li>

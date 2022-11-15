@@ -10,10 +10,11 @@ import AddLocation from "./components/AddLocation";
 import { useState, useEffect } from "react";
 import { Route, Switch, useHistory } from "react-router-dom";
 
-import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, fb_url, provider } from "./firebase";
 import {
   createUserWithEmailAndPassword,
+  getAdditionalUserInfo,
+  onAuthStateChanged,
   sendPasswordResetEmail,
   signInAnonymously,
   signInWithEmailAndPassword,
@@ -24,29 +25,38 @@ import {
 function App() {
   const [message, setMessage] = useState(null);
   const [locations, setLocations] = useState([]);
-  const [isRegistering, setRegisteringState] = useState(false);
-  const [user] = useAuthState(auth);
+  const [user, setUser] = useState(auth.currentUser);
   const history = useHistory();
 
+  /*
+   *******First render only: set auth state listener
+   */
   useEffect(() => {
-    if (!isRegistering) {
-      if (user) {
-        fetchLocations(user.uid);
-        history.push("/");
-      } else {
-        history.push("/Login");
-      }
+    onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      // login
+      fetchLocations(user);
+      history.push("/");
     }
-  }, [user, history, isRegistering]);
+    if (!user) {
+      // logout
+      history.push("/login");
+    }
+  }, [history, user]);
 
   /*
-   *********Adds location to database and to locations array
+   *********Adds location to database and calls fetchLocations()
    *********Returns: http status code.
    */
-  async function addLocationHandler(location) {
+  async function addLocationHandler(location, user) {
     try {
       const response = await fetch(
-        `${fb_url}/${user.uid}/locations.json?auth=${auth.currentUser.accessToken}`,
+        `${fb_url}/${user.uid}/locations.json?auth=${user.accessToken}`,
         {
           method: "POST",
           body: JSON.stringify(location),
@@ -56,7 +66,7 @@ function App() {
         }
       );
       if (response.ok) {
-        setLocations((current) => [...current, location]);
+        fetchLocations(user);
       }
       return response.status;
     } catch (error) {
@@ -69,10 +79,10 @@ function App() {
    ***********Returns http status code.
    */
 
-  async function deleteLocationHandler(id) {
+  async function deleteLocationHandler(id, user) {
     try {
       const response = await fetch(
-        `${fb_url}/${user.uid}/locations/${id}.json?auth=${auth.currentUser.accessToken}`,
+        `${fb_url}/${user.uid}/locations/${id}.json?auth=${user.accessToken}`,
         {
           method: "Delete",
           headers: {
@@ -96,10 +106,10 @@ function App() {
 ***********Returns http status code
 
 */
-  const fetchLocations = async (id) => {
+  const fetchLocations = async (user) => {
     try {
       const response = await fetch(
-        `${fb_url}/${id}/locations.json?auth=${auth.currentUser.accessToken}`
+        `${fb_url}/${user.uid}/locations.json?auth=${user.accessToken}`
       );
       const data = await response.json();
       if (response.ok) {
@@ -120,54 +130,61 @@ function App() {
     }
   };
 
-  /* ********Updates token */
+  /*
+   ************Adds default location to database
+   */
 
-  const resetToken = async () => {
-    await auth.currentUser.getIdToken();
-  };
-
-  /* 
-  
-  ************Registers new user and adds default location to database.
-  */
-
-  async function registrationHandler(email, password) {
-    let newUser;
+  async function addDefaultLocation(user) {
     const tampere = {
-      id: "default",
+      id: "--default",
       name: "Tampere",
       countryCode: "FI",
       lat: 61.4980214,
       lon: 23.7603118,
     };
     try {
-      if (email && password) {
-        newUser = await createUserWithEmailAndPassword(auth, email, password);
-      } else {
-        newUser = await signInAnonymously(auth);
-      }
       await fetch(
-        `${fb_url}/${newUser.user.uid}/locations.json?auth=${newUser.user.accessToken}`,
+        `${fb_url}/${user.uid}/locations/--default.json?auth=${user.accessToken}`,
         {
-          method: "POST",
+          method: "PUT",
           body: JSON.stringify(tampere),
           headers: {
             "Content-Type": "application/json",
           },
         }
       );
+      setLocations((current) => [...current, tampere]);
     } catch (error) {
       setMessage(error.message);
-      history.push("/register");
+    }
+  }
+
+  /* 
+  
+  ************Registers anonymous and email+password user and calls addDefaultLocation().
+  */
+
+  async function registrationHandler(email, password, auth) {
+    try {
+      let response;
+      if (email && password) {
+        response = await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        response = await signInAnonymously(auth);
+      }
+      await addDefaultLocation(response.user);
+    } catch (error) {
+      setMessage(error.message);
     }
   }
 
   /*
-   ***************Logout
+   ***************Logout and clear locations array.
    */
 
-  const logOutHandler = () => {
+  const logOutHandler = (auth) => {
     signOut(auth);
+    setLocations([]);
     setMessage("Logged out succesfully.");
   };
 
@@ -175,7 +192,7 @@ function App() {
    **************Login using email and password
    */
 
-  async function emailLoginHandler(email, password) {
+  async function emailLoginHandler(email, password, auth) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
@@ -184,12 +201,15 @@ function App() {
   }
 
   /*
-   **************Login with Google
+   **************Login with Google. If new user, add default location.
    */
 
-  const googleLoginHandler = async () => {
+  const googleLoginHandler = async (auth) => {
     try {
-      await signInWithPopup(auth, provider);
+      const response = await signInWithPopup(auth, provider);
+      if (getAdditionalUserInfo(response).isNewUser) {
+        await addDefaultLocation(response.user);
+      }
     } catch (error) {
       setMessage(error.message);
     }
@@ -199,14 +219,14 @@ function App() {
    ****************Reset Password
    */
 
-  const resetPasswordHandler = async (email) => {
+  async function resetPasswordHandler(email, auth) {
     try {
       await sendPasswordResetEmail(auth, email);
       setMessage(`Password reset email sent to: ${email}`);
     } catch (error) {
       setMessage(error.message);
     }
-  };
+  }
 
   const loggedInAs = () => {
     if (user.isAnonymous) {
@@ -218,11 +238,7 @@ function App() {
 
   return (
     <>
-      <NavigationBar
-        userLoggedIn={user ? true : false}
-        anonymousLogin={user ? user.isAnonymous : false}
-        onLogout={logOutHandler}
-      />
+      <NavigationBar onLogout={logOutHandler} auth={auth} />
       <section>
         <div className="logged">{user && `Logged in as ${loggedInAs()}`}</div>
         {message && (
@@ -235,12 +251,12 @@ function App() {
                 <WeatherList
                   locations={locations}
                   onDeleteLocation={deleteLocationHandler}
-                  resetToken={resetToken}
+                  user={user}
                 />
                 <AddLocation
                   onAddLocation={addLocationHandler}
-                  resetToken={resetToken}
                   setMessage={setMessage}
+                  user={user}
                 />
               </div>
             ) : (
@@ -251,9 +267,7 @@ function App() {
             <Register
               onRegister={registrationHandler}
               addLocation={addLocationHandler}
-              user={user}
-              setRegisteringState={setRegisteringState}
-              isRegistering={isRegistering}
+              auth={auth}
             />
           </Route>
           <Route path="/Login">
@@ -261,8 +275,8 @@ function App() {
               onEmailLogin={emailLoginHandler}
               onPasswordReset={resetPasswordHandler}
               onRegister={registrationHandler}
-              setRegisteringState={setRegisteringState}
               onGoogleLogin={googleLoginHandler}
+              auth={auth}
             />
           </Route>
         </Switch>
