@@ -100,7 +100,7 @@ const Weather = (props) => {
           </div>
 
           <div>
-            <div className="top">
+            <div className="weather-icon">
               <WeatherIcon
                 weatherId={weatherIconId}
                 sunIsSet={sunIsSet}

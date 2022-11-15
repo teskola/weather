@@ -10,10 +10,14 @@ import AddLocation from "./components/AddLocation";
 import { useState, useEffect } from "react";
 import { Route, Switch, useHistory } from "react-router-dom";
 
-import { auth, fb_url, provider } from "./firebase";
+import { auth, fb_url } from "./firebase";
 import {
   createUserWithEmailAndPassword,
+  EmailAuthProvider,
   getAdditionalUserInfo,
+  GoogleAuthProvider,
+  linkWithCredential,
+  linkWithPopup,
   onAuthStateChanged,
   sendPasswordResetEmail,
   signInAnonymously,
@@ -103,10 +107,9 @@ function App() {
   /* 
 
 ***********Fetches locations from Firebase database.
-***********Returns http status code
 
 */
-  const fetchLocations = async (user) => {
+  async function fetchLocations(user) {
     try {
       const response = await fetch(
         `${fb_url}/${user.uid}/locations.json?auth=${user.accessToken}`
@@ -128,7 +131,7 @@ function App() {
     } catch (error) {
       setMessage(error.message);
     }
-  };
+  }
 
   /*
    ************Adds default location to database
@@ -159,6 +162,16 @@ function App() {
     }
   }
 
+  async function linkAnonymousToEmail(email, password, auth) {
+    try {
+      const credential = EmailAuthProvider.credential(email, password);
+      await linkWithCredential(auth.currentUser, credential);
+      history.push("/");
+      setMessage("Anonymous account successfully upgraded.");
+    } catch (error) {
+      setMessage(error.message);
+    }
+  }
   /* 
   
   ************Registers anonymous and email+password user and calls addDefaultLocation().
@@ -166,13 +179,19 @@ function App() {
 
   async function registrationHandler(email, password, auth) {
     try {
-      let response;
-      if (email && password) {
-        response = await createUserWithEmailAndPassword(auth, email, password);
+      if (auth.currentUser && auth.currentUser.isAnonymous) {
+        await linkAnonymousToEmail(email, password, auth);
+      } else if (email && password) {
+        const credential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        await addDefaultLocation(credential.user);
       } else {
-        response = await signInAnonymously(auth);
+        const credential = await signInAnonymously(auth);
+        await addDefaultLocation(credential.user);
       }
-      await addDefaultLocation(response.user);
     } catch (error) {
       setMessage(error.message);
     }
@@ -182,11 +201,11 @@ function App() {
    ***************Logout and clear locations array.
    */
 
-  const logOutHandler = (auth) => {
+  function logOutHandler(auth) {
     signOut(auth);
     setLocations([]);
     setMessage("Logged out succesfully.");
-  };
+  }
 
   /*
    **************Login using email and password
@@ -204,16 +223,23 @@ function App() {
    **************Login with Google. If new user, add default location.
    */
 
-  const googleLoginHandler = async (auth) => {
+  async function googleLoginHandler(auth) {
+    const provider = new GoogleAuthProvider();
     try {
-      const response = await signInWithPopup(auth, provider);
-      if (getAdditionalUserInfo(response).isNewUser) {
-        await addDefaultLocation(response.user);
+      if (auth.currentUser && auth.currentUser.isAnonymous) {
+        await linkWithPopup(auth.currentUser, provider);
+        history.push("/");
+        setMessage("Anonymous account successfully upgraded.");
+      } else {
+        const response = await signInWithPopup(auth, provider);
+        if (getAdditionalUserInfo(response).isNewUser) {
+          await addDefaultLocation(response.user);
+        }
       }
     } catch (error) {
       setMessage(error.message);
     }
-  };
+  }
 
   /*
    ****************Reset Password
