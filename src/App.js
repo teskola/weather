@@ -1,11 +1,13 @@
 import "./App.css";
+import openWeather from "./images/OpenWeather.png";
 
 import WeatherList from "./components/WeatherList";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NavigationBar from "./components/NavigationBar";
-import Message from "./components/Message";
 import AddLocation from "./components/AddLocation";
+import Modal from "./components/Modal";
+import Backdrop from "./components/Backdrop";
 
 import { useState, useEffect } from "react";
 import { Route, Switch, useHistory } from "react-router-dom";
@@ -162,6 +164,10 @@ function App() {
     }
   }
 
+  /*
+   **************Links anonymous account to emai account
+   */
+
   async function linkAnonymousToEmail(email, password, auth) {
     try {
       const credential = EmailAuthProvider.credential(email, password);
@@ -220,7 +226,9 @@ function App() {
   }
 
   /*
-   **************Login with Google. If new user, add default location.
+   **************Login with Google.
+   **************If new user, add default location.
+   **************If logged in as anonymous, link with google account.
    */
 
   async function googleLoginHandler(auth) {
@@ -268,7 +276,10 @@ function App() {
       <section>
         <div className="logged">{user && `Logged in as ${loggedInAs()}`}</div>
         {message && (
-          <Message message={message} onConfirm={() => setMessage(null)} />
+          <>
+            <Modal message={message} onConfirm={() => setMessage(null)} />
+            <Backdrop onClick={() => setMessage(null)} />
+          </>
         )}
         <Switch>
           <Route path="/" exact>
@@ -335,6 +346,20 @@ function App() {
           https://dovora.com/resources/weather-icons/
         </a>
         .
+      </div>
+      <div className="license">
+        <a href="https://openweathermap.org/">
+          <img
+            src={openWeather}
+            alt="openweathermap.org"
+            width={120}
+            height={68}
+          />
+        </a>
+        <br></br>
+        <a href="https://openweathermap.org/">
+          Weather data provided by OpenWeather
+        </a>
       </div>
     </>
   );

@@ -10,19 +10,6 @@
   background-color: #272727;
 }
 
-.header h2 {
-  font-size: 2rem;
-  color: white;
-  font-weight: bold;
-}
-
-.header ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-}
-
 .left {
   flex-grow: 1;
   padding-left: 2rem;
